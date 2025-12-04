@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next'; // <-- Add this
 import { FilterOptions } from '../types';
 import { brands, fuelTypes, transmissions, bodyTypes, brandModels } from '../data/cars';
 import { Filter, X } from 'lucide-react';
@@ -11,6 +12,8 @@ interface CarFilterProps {
 }
 
 const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen, onToggle }) => {
+  const { t } = useTranslation('cars'); // <-- Use 'cars' namespace
+
   const updateFilters = (key: keyof FilterOptions, value: any) => {
     onFiltersChange({ ...filters, [key]: value });
   };
@@ -50,7 +53,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
           className="flex items-center space-x-2 bg-blue-700 text-white px-4 py-2 rounded-lg"
         >
           <Filter className="h-4 w-4" />
-          <span>Filters</span>
+          <span>{t('filters.label', 'Filters')}</span>
         </button>
       </div>
 
@@ -63,13 +66,13 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
         <div className="p-6 lg:p-0 h-full overflow-y-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6 lg:mb-0 lg:block">
-            <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('filters.label', 'Filters')}</h3>
             <div className="flex space-x-2">
               <button
                 onClick={clearFilters}
                 className="text-blue-700 hover:text-blue-800 text-sm"
               >
-                Clear All
+                {t('filters.clear', 'Clear All')}
               </button>
               <button
                 onClick={onToggle}
@@ -84,12 +87,12 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
             {/* Price Range */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Price Range (MMK)
+                {t('filters.price_range')}
               </label>
               <div className="space-y-2">
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Minimum Price</label>
+                    <label className="text-xs text-gray-500 mb-1 block">{t('filters.min_price')}</label>
                     <input
                       type="range"
                       min="0"
@@ -106,7 +109,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Maximum Price</label>
+                    <label className="text-xs text-gray-500 mb-1 block">{t('filters.max_price')}</label>
                     <input
                       type="range"
                       min="0"
@@ -132,7 +135,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
 
             {/* Brand Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Brand</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">{t('filters.brand')}</label>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {brands.map((brand) => (
                   <label key={brand} className="flex items-center">
@@ -161,7 +164,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
             {/* Model Filter - Only show when brands are selected */}
             {filters.brands.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Model</label>
+                <label className="block text-sm font-medium text-gray-700 mb-3">{t('filters.model')}</label>
                 <div className="space-y-2 max-h-32 overflow-y-auto">
                   {getAvailableModels().map((model) => (
                     <label key={model} className="flex items-center">
@@ -187,7 +190,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
             {/* Year Range */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Year Range
+                {t('filters.year_range')}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <select
@@ -213,7 +216,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
 
             {/* Fuel Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Fuel Type</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">{t('filters.fuel_type')}</label>
               <div className="space-y-2">
                 {fuelTypes.map((fuelType) => (
                   <label key={fuelType} className="flex items-center">
@@ -237,7 +240,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
 
             {/* Transmission */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Transmission</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">{t('filters.transmission')}</label>
               <div className="space-y-2">
                 {transmissions.map((transmission) => (
                   <label key={transmission} className="flex items-center">
@@ -261,7 +264,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
 
             {/* Status */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">Status</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">{t('filters.status')}</label>
               <div className="space-y-2">
                 {['available', 'sold', 'reserved'].map((status) => (
                   <label key={status} className="flex items-center">
@@ -277,7 +280,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
                       }}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="ml-2 text-sm text-gray-700 capitalize">{status}</span>
+                    <span className="ml-2 text-sm text-gray-700 capitalize">{t(`status.${status}`)}</span>
                   </label>
                 ))}
               </div>

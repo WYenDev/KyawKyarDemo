@@ -1,0 +1,29 @@
+{
+  "title": "Our Car Inventory",
+  "subtitle": "Browse through Myanmar's largest collection of quality cars",
+  "filters": {
+    "search_placeholder": "Search by brand or model...",
+    "brand": "Brand",
+    "model": "Model",
+    "price_range": "Price Range",
+    "year_range": "Year Range",
+    "mileage_range": "Mileage Range",
+    "fuel_type": "Fuel Type",
+    "transmission": "Transmission",
+    "body_type": "Body Type",
+    "status": "Status"
+  },
+  "sort": {
+    "label": "Sort by",
+    "price_low": "Price: Low to High",
+    "price_high": "Price: High to Low",
+    "year_new": "Year: Newest First",
+    "year_old": "Year: Oldest First",
+    "mileage_low": "Mileage: Low to High"
+  },
+  "status": {
+    "available": "Available",
+    "sold": "Sold",
+    "reserved": "Reserved"
+  }
+}

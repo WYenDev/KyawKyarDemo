@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Car } from '../types';
 import { Calendar, Gauge, Fuel, Settings, MapPin, Eye } from 'lucide-react';
 
@@ -8,6 +9,8 @@ interface CarCardProps {
 }
 
 const CarCard: React.FC<CarCardProps> = ({ car, onViewDetails }) => {
+  const { t } = useTranslation('cars');
+
   const formatPrice = (price: number) => {
     return `${(price / 1000000).toFixed(1)}M MMK`;
   };
@@ -47,7 +50,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, onViewDetails }) => {
         </div>
         <div className="absolute top-3 right-3">
           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(car.status)}`}>
-            {car.status.charAt(0).toUpperCase() + car.status.slice(1)}
+            {t(`status.${car.status}`)}
           </span>
         </div>
       </div>
@@ -91,7 +94,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, onViewDetails }) => {
             className="flex items-center space-x-2 bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors"
           >
             <Eye className="h-4 w-4" />
-            <span>View Details</span>
+            <span>{t('view_details', 'View Details')}</span>
           </button>
         </div>
       </div>

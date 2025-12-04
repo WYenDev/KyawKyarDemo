@@ -7,7 +7,7 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation('common'); // Use 'common' namespace
   const currentLang = i18n.language;
 
   useEffect(() => {
@@ -34,12 +34,13 @@ const Header: React.FC = () => {
     i18n.changeLanguage(newLang);
   };
 
+  // Use keys from common.json for navigation
   const navItems = [
-    { path: '/', label: t('home') },
-    { path: '/cars', label: t('cars') },
-    { path: '/about', label: t('about') },
-    { path: '/reviews', label: t('reviews') },
-    { path: '/contact', label: t('contact') },
+    { path: '/', label: t('nav.home') },
+    { path: '/cars', label: t('nav.cars') },
+    { path: '/about', label: t('nav.about') },
+    { path: '/reviews', label: t('nav.reviews') },
+    { path: '/contact', label: t('nav.contact') },
   ];
 
   return (
@@ -62,6 +63,7 @@ const Header: React.FC = () => {
                 KyawKyar
               </h1>
               <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                {/* You may want to move tagline to common.json or home.json */}
                 {t('tagline', "Myanmar's #1 Used Car Dealer")}
               </p>
             </div>
@@ -92,7 +94,7 @@ const Header: React.FC = () => {
             <a
               href="tel:+959123456789"
               className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-900 text-white hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-200"
-              aria-label="Call Us"
+              aria-label={t('buttons.call_us')}
             >
               <Phone className="h-4 w-4" />
             </a>
@@ -151,7 +153,7 @@ const Header: React.FC = () => {
                 className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <Phone className="h-5 w-5" />
-                <span className="font-medium">Call Us</span>
+                <span className="font-medium">{t('buttons.call_us')}</span>
               </a>
             </div>
           </div>

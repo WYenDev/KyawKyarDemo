@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "home": "Home",
+    "cars": "Cars",
+    "about": "About",
+    "reviews": "Reviews",
+    "contact": "Contact"
+  },
+  "buttons": {
+    "browse_cars": "Browse Cars Now",
+    "get_consultation": "Get Free Consultation",
+    "view_details": "View Details",
+    "call_us": "Call Us",
+    "send_message": "Send Message"
+  },
+  "labels": {
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "opening_hours": "Opening Hours"
+  }
+}

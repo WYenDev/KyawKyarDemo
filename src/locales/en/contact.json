@@ -1,0 +1,63 @@
+{
+  "title": "Get In Touch",
+  "subtitle": "Ready to find your perfect car? Contact us today and let our experts help you drive away with your dream vehicle.",
+  "info": {
+    "title": "Contact Information",
+    "address": {
+      "title": "Address",
+      "line1": "123 Main Road",
+      "line2": "Yangon, Myanmar"
+    },
+    "phone": {
+      "title": "Phone Numbers",
+      "mobile": "+95-9-123-456-789",
+      "landline": "+95-1-234-567"
+    },
+    "email": {
+      "title": "Email",
+      "general": "info@automaxmyanmar.com",
+      "sales": "sales@automaxmyanmar.com"
+    },
+    "hours": {
+      "title": "Opening Hours",
+      "weekdays": "Mon-Fri: 9am - 6pm",
+      "weekends": "Sat-Sun: 10am - 4pm"
+    }
+  },
+  "form": {
+    "title": "Send Us a Message",
+    "full_name": "Full Name",
+    "full_name_placeholder": "Enter your full name",
+    "phone": "Phone Number",
+    "phone_placeholder": "Enter your phone number",
+    "email": "Email Address",
+    "email_placeholder": "Enter your email address",
+    "interest": "I'm interested in",
+    "interest_placeholder": "Select an option",
+    "interest_buying": "Buying a Car",
+    "interest_selling": "Selling a Car",
+    "interest_financing": "Car Financing",
+    "interest_other": "Other",
+    "message": "Message",
+    "message_placeholder": "How can we help you?",
+    "send_message": "Send Message"
+  },
+  "locations": {
+    "title": "Our Branches",
+    "yangon": {
+      "title": "Yangon Branch",
+      "address": "123 Main Road, Yangon",
+      "note": "Open 7 days a week"
+    },
+    "mandalay": {
+      "title": "Mandalay Branch",
+      "address": "456 Mandalay Ave, Mandalay",
+      "note": "Open Mon-Sat"
+    },
+    "naypyidaw": {
+      "title": "Naypyidaw Branch",
+      "address": "789 Capital Rd, Naypyidaw",
+      "note": "By appointment only"
+    }
+  }
+}
