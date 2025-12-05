@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Car } from '../types';
 import { X, Calendar, Gauge, Fuel, Settings, MapPin, Phone, Mail, Heart } from 'lucide-react';
+import { formatPriceLakhs } from '../utils/price';
 
 interface CarModalProps {
   car: Car;
@@ -12,10 +13,6 @@ const CarModal: React.FC<CarModalProps> = ({ car, isOpen, onClose }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   if (!isOpen) return null;
-
-  const formatPrice = (price: number) => {
-    return `${(price / 1000000).toFixed(1)}M MMK`;
-  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -76,7 +73,7 @@ const CarModal: React.FC<CarModalProps> = ({ car, isOpen, onClose }) => {
             <div>
               <div className="mb-6">
                 <div className="text-3xl font-bold text-blue-700 mb-2">
-                  {formatPrice(car.price)}
+                  {formatPriceLakhs(car.price)}
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
                   car.status === 'available' ? 'bg-green-100 text-green-800' :

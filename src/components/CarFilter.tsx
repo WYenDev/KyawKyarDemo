@@ -1,7 +1,8 @@
 import React from 'react';
 import { FilterOptions } from '../types';
-import { brands, fuelTypes, transmissions, bodyTypes, brandModels } from '../data/cars';
+import { brands, fuelTypes, transmissions, brandModels } from '../data/cars';
 import { Filter, X } from 'lucide-react';
+import { formatPriceLakhs } from '../utils/price';
 
 interface CarFilterProps {
   filters: FilterOptions;
@@ -11,6 +12,7 @@ interface CarFilterProps {
 }
 
 const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen, onToggle }) => {
+
   const updateFilters = (key: keyof FilterOptions, value: any) => {
     onFiltersChange({ ...filters, [key]: value });
   };
@@ -56,26 +58,26 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
 
       {/* Filter Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
+        fixed inset-y-0 left-0 z-40 w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
         lg:relative lg:translate-x-0 lg:shadow-none lg:bg-gray-50 lg:rounded-xl lg:p-6
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-6 lg:p-0 h-full overflow-y-auto">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6 lg:mb-0 lg:block">
+          <div className="flex justify-between items-center mb-6 lg:mb-0">
             <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-            <div className="flex space-x-2">
-              <button
-                onClick={clearFilters}
-                className="text-blue-700 hover:text-blue-800 text-sm"
-              >
-                Clear All
-              </button>
+            <div className="flex items-center space-x-2">
               <button
                 onClick={onToggle}
                 className="lg:hidden text-gray-500 hover:text-gray-700"
               >
                 <X className="h-5 w-5" />
+              </button>
+              <button
+                onClick={clearFilters}
+                className="text-blue-700 hover:text-blue-800 text-sm"
+              >
+                Clear All
               </button>
             </div>
           </div>
@@ -84,12 +86,12 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
             {/* Price Range */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Price Range (MMK)
+                Price Range
               </label>
               <div className="space-y-2">
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Minimum Price</label>
+                    <label className="text-xs text-gray-500 mb-1 block">Min price</label>
                     <input
                       type="range"
                       min="0"
@@ -106,7 +108,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Maximum Price</label>
+                    <label className="text-xs text-gray-500 mb-1 block">Max price</label>
                     <input
                       type="range"
                       min="0"
@@ -124,8 +126,8 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
                   </div>
                 </div>
                 <div className="flex justify-between text-xs text-gray-500">
-                  <span>{(filters.priceRange[0] / 1000000).toFixed(0)}M</span>
-                  <span>{(filters.priceRange[1] / 1000000).toFixed(0)}M</span>
+                  <span>{formatPriceLakhs(filters.priceRange[0])}</span>
+                  <span>{formatPriceLakhs(filters.priceRange[1])}</span>
                 </div>
               </div>
             </div>
@@ -141,13 +143,13 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
                       checked={filters.brands.includes(brand)}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          updateFilters('brands', [...filters.brands, brand]);
+                          const newBrands = [...filters.brands, brand];
+                          onFiltersChange({ ...filters, brands: newBrands });
                         } else {
-                          updateFilters('brands', filters.brands.filter(b => b !== brand));
-                          // Clear models when brand is unchecked
-                          const remainingBrands = filters.brands.filter(b => b !== brand);
-                          const availableModels = remainingBrands.flatMap(b => brandModels[b] || []);
-                          updateFilters('models', filters.models.filter(m => availableModels.includes(m)));
+                          const remainingBrands = filters.brands.filter((b) => b !== brand);
+                          const availableModels = remainingBrands.flatMap((b) => brandModels[b] || []);
+                          const newModels = filters.models.filter((m) => availableModels.includes(m));
+                          onFiltersChange({ ...filters, brands: remainingBrands, models: newModels });
                         }
                       }}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -263,7 +265,8 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">Status</label>
               <div className="space-y-2">
-                {['available', 'sold', 'reserved'].map((status) => (
+                 {(['available', 'sold', 'reserved'] as const).map((status) => (
+
                   <label key={status} className="flex items-center">
                     <input
                       type="checkbox"
@@ -289,7 +292,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
       {/* Mobile Overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={onToggle}
         />
       )}

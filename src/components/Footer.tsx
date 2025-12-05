@@ -1,7 +1,10 @@
 import React from 'react';
 import { Car, Facebook, MessageCircle, Phone, Mail } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Footer: React.FC = () => {
+  const { t } = useTranslation('footer');
+
   return (
     <footer className="bg-gray-950 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -12,12 +15,11 @@ const Footer: React.FC = () => {
               <Car className="h-8 w-8 text-blue-400" />
               <div>
                 <h3 className="text-2xl font-bold">KyawKyaw</h3>
-                <p className="text-sm text-gray-400">Myanmar's #1 Used Car Dealer</p>
+                <p className="text-sm text-gray-400">{t('tagline')}</p>
               </div>
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
-              For over 15 years, we've been helping families across Myanmar find their perfect vehicles. 
-              With the largest inventory and most trusted service, we're your reliable car buying partner.
+              {t('description')}
             </p>
             <div className="flex space-x-4">
               <a href="#" className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
@@ -34,26 +36,26 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+            <h4 className="text-lg font-semibold mb-4">{t('quick_links')}</h4>
             <ul className="space-y-2">
-              <li><a href="#home" className="text-gray-300 hover:text-white transition-colors">Home</a></li>
-              <li><a href="#inventory" className="text-gray-300 hover:text-white transition-colors">Car Inventory</a></li>
-              <li><a href="#about" className="text-gray-300 hover:text-white transition-colors">About Us</a></li>
-              <li><a href="#testimonials" className="text-gray-300 hover:text-white transition-colors">Customer Reviews</a></li>
-              <li><a href="#contact" className="text-gray-300 hover:text-white transition-colors">Contact</a></li>
+              <li><a href="#home" className="text-gray-300 hover:text-white transition-colors">{t('quick_links_home', 'Home')}</a></li>
+              <li><a href="#inventory" className="text-gray-300 hover:text-white transition-colors">{t('quick_links_inventory', 'Car Inventory')}</a></li>
+              <li><a href="#about" className="text-gray-300 hover:text-white transition-colors">{t('quick_links_about', 'About Us')}</a></li>
+              <li><a href="#testimonials" className="text-gray-300 hover:text-white transition-colors">{t('quick_links_testimonials', 'Customer Reviews')}</a></li>
+              <li><a href="#contact" className="text-gray-300 hover:text-white transition-colors">{t('quick_links_contact', 'Contact')}</a></li>
             </ul>
           </div>
 
           {/* Services */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Our Services</h4>
+            <h4 className="text-lg font-semibold mb-4">{t('services.title')}</h4>
             <ul className="space-y-2 text-gray-300">
-              <li>Buy Used Cars</li>
-              <li>Sell Your Car</li>
-              <li>Car Financing</li>
-              <li>Trade-In Service</li>
-              <li>Car Insurance</li>
-              <li>After-Sale Service</li>
+              <li>{t('services.buy')}</li>
+              <li>{t('services.sell')}</li>
+              <li>{t('services.financing')}</li>
+              <li>{t('services.trade_in')}</li>
+              <li>{t('services.insurance')}</li>
+              <li>{t('services.after_sale')}</li>
             </ul>
           </div>
         </div>
@@ -62,8 +64,8 @@ const Footer: React.FC = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="grid md:grid-cols-2 gap-4 items-center">
             <div className="text-gray-400 text-sm">
-              <p>&copy; 2024 AutoMax Myanmar. All rights reserved.</p>
-              <p>Licensed Car Dealer - Government Approved</p>
+              <p>{t('copyright')}</p>
+              <p>{t('license')}</p>
             </div>
             <div className="md:text-right">
               <div className="flex items-center justify-start md:justify-end space-x-4 text-sm text-gray-300">

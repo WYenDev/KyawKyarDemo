@@ -1,16 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { cars } from '../data/cars';
 import CarCard from './CarCard';
-import CarModal from './CarModal';
-import { Car } from '../types';
-
+ 
 const FeaturedCars: React.FC = () => {
-  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const featuredCars = cars.filter(car => car.isFeatured);
 
-  const handleViewDetails = (car: Car) => {
-    setSelectedCar(car);
-  };
 
   return (
     <section className="py-16 bg-white">
@@ -28,19 +22,10 @@ const FeaturedCars: React.FC = () => {
             <CarCard
               key={car.id}
               car={car}
-              onViewDetails={handleViewDetails}
             />
           ))}
         </div>
 
-        {/* Car Detail Modal */}
-        {selectedCar && (
-          <CarModal
-            car={selectedCar}
-            isOpen={!!selectedCar}
-            onClose={() => setSelectedCar(null)}
-          />
-        )}
       </div>
     </section>
   );

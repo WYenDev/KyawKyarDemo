@@ -1,16 +1,18 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Car } from '../types';
-import { Calendar, Gauge, Fuel, Settings, MapPin, Eye } from 'lucide-react';
-
+import { Calendar, Gauge, Fuel, Settings, MapPin } from 'lucide-react';
+import { formatPriceLakhs } from '../utils/price';
+ 
 interface CarCardProps {
   car: Car;
-  onViewDetails: (car: Car) => void;
 }
+ 
+const CarCard: React.FC<CarCardProps> = ({ car }) => {
+  const { t } = useTranslation('cars');
+  const navigate = useNavigate();
 
-const CarCard: React.FC<CarCardProps> = ({ car, onViewDetails }) => {
-  const formatPrice = (price: number) => {
-    return `${(price / 1000000).toFixed(1)}M MMK`;
-  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -25,8 +27,23 @@ const CarCard: React.FC<CarCardProps> = ({ car, onViewDetails }) => {
     }
   };
 
+  const handleClick = () => {
+    navigate(`/cars/${car.id}`);
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
+    <div
+      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group cursor-pointer"
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleClick();
+        }
+      }}
+    >
       <div className="relative">
         <img 
           src={car.images[0]} 
@@ -47,7 +64,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, onViewDetails }) => {
         </div>
         <div className="absolute top-3 right-3">
           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(car.status)}`}>
-            {car.status.charAt(0).toUpperCase() + car.status.slice(1)}
+            {t(`status.${car.status}`)}
           </span>
         </div>
       </div>
@@ -84,15 +101,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, onViewDetails }) => {
 
         <div className="flex justify-between items-center">
           <div className="text-2xl font-bold text-blue-700">
-            {formatPrice(car.price)}
+            {formatPriceLakhs(car.price)}
           </div>
-          <button
-            onClick={() => onViewDetails(car)}
-            className="flex items-center space-x-2 bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            <Eye className="h-4 w-4" />
-            <span>View Details</span>
-          </button>
         </div>
       </div>
     </div>
