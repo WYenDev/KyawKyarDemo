@@ -30,16 +30,16 @@ const Header: React.FC = () => {
   };
 
   const handleLanguageChange = () => {
-    const newLang = currentLang === 'en' ? 'my' : 'en';
+    const newLang = currentLang === 'en' ? 'mm' : 'en';
     i18n.changeLanguage(newLang);
   };
 
   // Use keys from common.json for navigation
   const navItems = [
     { path: '/', label: t('nav.home') },
-    { path: '/cars', label: t('nav.cars') },
+    { path: '/buyCars', label: t('nav.buyCars') },
+    { path: '/sellCars', label: t('nav.sellCars') },
     { path: '/about', label: t('nav.about') },
-    { path: '/reviews', label: t('nav.reviews') },
     { path: '/contact', label: t('nav.contact') },
   ];
 
@@ -87,7 +87,7 @@ const Header: React.FC = () => {
             >
               <Globe className="h-4 w-4 text-gray-500 group-hover:text-blue-600" />
               <span className="text-sm font-medium text-gray-700 group-hover:text-blue-700">
-                {currentLang === 'en' ? 'EN' : 'MY'}
+                {t(`nav.language`)}
               </span>
             </button>
 

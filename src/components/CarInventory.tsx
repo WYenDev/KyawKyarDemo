@@ -1,14 +1,16 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cars } from '../data/cars';
-import { Car, FilterOptions } from '../types';
+import { FilterOptions } from '../types';
 import CarCard from './CarCard';
-import CarModal from './CarModal';
 import CarFilter from './CarFilter';
 import { Search } from 'lucide-react';
+ 
+ const CarInventory: React.FC = () => {
+   const { t } = useTranslation('cars');
+ 
+   const [searchTerm, setSearchTerm] = useState('');
 
-const CarInventory: React.FC = () => {
-  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'price-low' | 'price-high' | 'year-new' | 'year-old' | 'mileage-low'>('price-low');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
@@ -80,22 +82,19 @@ const CarInventory: React.FC = () => {
     });
 
     return filtered;
-  }, [cars, searchTerm, filters, sortBy]);
-
-  const handleViewDetails = (car: Car) => {
-    setSelectedCar(car);
-  };
-
+  }, [searchTerm, filters, sortBy]);
+ 
   const availableCars = filteredAndSortedCars.filter(car => car.status === 'available');
+
   const soldCars = filteredAndSortedCars.filter(car => car.status === 'sold');
   const reservedCars = filteredAndSortedCars.filter(car => car.status === 'reserved');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Car Inventory</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('title')}</h1>
         <p className="text-xl text-gray-600">
-          Browse through Myanmar's largest collection of quality used cars
+          {t('subtitle')}
         </p>
       </div>
 
@@ -160,7 +159,6 @@ const CarInventory: React.FC = () => {
                 <CarCard
                   key={car.id}
                   car={car}
-                  onViewDetails={handleViewDetails}
                 />
               ))}
             </div>
@@ -174,14 +172,6 @@ const CarInventory: React.FC = () => {
         </div>
       </div>
 
-      {/* Car Detail Modal */}
-      {selectedCar && (
-        <CarModal
-          car={selectedCar}
-          isOpen={!!selectedCar}
-          onClose={() => setSelectedCar(null)}
-        />
-      )}
     </div>
   );
 };

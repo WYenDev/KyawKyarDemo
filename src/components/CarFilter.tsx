@@ -1,8 +1,8 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next'; // <-- Add this
 import { FilterOptions } from '../types';
-import { brands, fuelTypes, transmissions, bodyTypes, brandModels } from '../data/cars';
+import { brands, fuelTypes, transmissions, brandModels } from '../data/cars';
 import { Filter, X } from 'lucide-react';
+import { formatPriceLakhs } from '../utils/price';
 
 interface CarFilterProps {
   filters: FilterOptions;
@@ -12,7 +12,6 @@ interface CarFilterProps {
 }
 
 const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen, onToggle }) => {
-  const { t } = useTranslation('cars'); // <-- Use 'cars' namespace
 
   const updateFilters = (key: keyof FilterOptions, value: any) => {
     onFiltersChange({ ...filters, [key]: value });
@@ -53,32 +52,32 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
           className="flex items-center space-x-2 bg-blue-700 text-white px-4 py-2 rounded-lg"
         >
           <Filter className="h-4 w-4" />
-          <span>{t('filters.label', 'Filters')}</span>
+          <span>Filters</span>
         </button>
       </div>
 
       {/* Filter Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
+        fixed inset-y-0 left-0 z-40 w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
         lg:relative lg:translate-x-0 lg:shadow-none lg:bg-gray-50 lg:rounded-xl lg:p-6
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-6 lg:p-0 h-full overflow-y-auto">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6 lg:mb-0 lg:block">
-            <h3 className="text-lg font-semibold text-gray-900">{t('filters.label', 'Filters')}</h3>
-            <div className="flex space-x-2">
-              <button
-                onClick={clearFilters}
-                className="text-blue-700 hover:text-blue-800 text-sm"
-              >
-                {t('filters.clear', 'Clear All')}
-              </button>
+          <div className="flex justify-between items-center mb-6 lg:mb-0">
+            <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+            <div className="flex items-center space-x-2">
               <button
                 onClick={onToggle}
                 className="lg:hidden text-gray-500 hover:text-gray-700"
               >
                 <X className="h-5 w-5" />
+              </button>
+              <button
+                onClick={clearFilters}
+                className="text-blue-700 hover:text-blue-800 text-sm"
+              >
+                Clear All
               </button>
             </div>
           </div>
@@ -87,12 +86,12 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
             {/* Price Range */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                {t('filters.price_range')}
+                Price Range
               </label>
               <div className="space-y-2">
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">{t('filters.min_price')}</label>
+                    <label className="text-xs text-gray-500 mb-1 block">Min price</label>
                     <input
                       type="range"
                       min="0"
@@ -109,7 +108,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">{t('filters.max_price')}</label>
+                    <label className="text-xs text-gray-500 mb-1 block">Max price</label>
                     <input
                       type="range"
                       min="0"
@@ -127,15 +126,15 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
                   </div>
                 </div>
                 <div className="flex justify-between text-xs text-gray-500">
-                  <span>{(filters.priceRange[0] / 1000000).toFixed(0)}M</span>
-                  <span>{(filters.priceRange[1] / 1000000).toFixed(0)}M</span>
+                  <span>{formatPriceLakhs(filters.priceRange[0])}</span>
+                  <span>{formatPriceLakhs(filters.priceRange[1])}</span>
                 </div>
               </div>
             </div>
 
             {/* Brand Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">{t('filters.brand')}</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Brand</label>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {brands.map((brand) => (
                   <label key={brand} className="flex items-center">
@@ -144,13 +143,13 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
                       checked={filters.brands.includes(brand)}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          updateFilters('brands', [...filters.brands, brand]);
+                          const newBrands = [...filters.brands, brand];
+                          onFiltersChange({ ...filters, brands: newBrands });
                         } else {
-                          updateFilters('brands', filters.brands.filter(b => b !== brand));
-                          // Clear models when brand is unchecked
-                          const remainingBrands = filters.brands.filter(b => b !== brand);
-                          const availableModels = remainingBrands.flatMap(b => brandModels[b] || []);
-                          updateFilters('models', filters.models.filter(m => availableModels.includes(m)));
+                          const remainingBrands = filters.brands.filter((b) => b !== brand);
+                          const availableModels = remainingBrands.flatMap((b) => brandModels[b] || []);
+                          const newModels = filters.models.filter((m) => availableModels.includes(m));
+                          onFiltersChange({ ...filters, brands: remainingBrands, models: newModels });
                         }
                       }}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -164,7 +163,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
             {/* Model Filter - Only show when brands are selected */}
             {filters.brands.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">{t('filters.model')}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-3">Model</label>
                 <div className="space-y-2 max-h-32 overflow-y-auto">
                   {getAvailableModels().map((model) => (
                     <label key={model} className="flex items-center">
@@ -190,7 +189,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
             {/* Year Range */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                {t('filters.year_range')}
+                Year Range
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <select
@@ -216,7 +215,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
 
             {/* Fuel Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">{t('filters.fuel_type')}</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Fuel Type</label>
               <div className="space-y-2">
                 {fuelTypes.map((fuelType) => (
                   <label key={fuelType} className="flex items-center">
@@ -240,7 +239,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
 
             {/* Transmission */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">{t('filters.transmission')}</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Transmission</label>
               <div className="space-y-2">
                 {transmissions.map((transmission) => (
                   <label key={transmission} className="flex items-center">
@@ -264,9 +263,10 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
 
             {/* Status */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">{t('filters.status')}</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Status</label>
               <div className="space-y-2">
-                {['available', 'sold', 'reserved'].map((status) => (
+                 {(['available', 'sold', 'reserved'] as const).map((status) => (
+
                   <label key={status} className="flex items-center">
                     <input
                       type="checkbox"
@@ -280,7 +280,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
                       }}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="ml-2 text-sm text-gray-700 capitalize">{t(`status.${status}`)}</span>
+                    <span className="ml-2 text-sm text-gray-700 capitalize">{status}</span>
                   </label>
                 ))}
               </div>
@@ -292,7 +292,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
       {/* Mobile Overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={onToggle}
         />
       )}

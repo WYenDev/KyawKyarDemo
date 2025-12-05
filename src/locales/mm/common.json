@@ -1,17 +1,19 @@
 {
   "nav": {
     "home": "ပင်မစာမျက်နှာ",
-    "cars": "ကားများ",
+    "buyCars": "ကားဝယ်မည်",
+    "sellCars": "ကားရောင်းမည်",
     "about": "အကြောင်း",
-    "reviews": "သုံးသပ်ချက်များ",
-    "contact": "ဆက်သွယ်ရန်"
+    "reviews": "အမြင်များ",
+    "contact": "ဆက်သွယ်ရန်",
+    "language": "ENG"
   },
   "buttons": {
-    "browse_cars": "ကားများကို ကြည့်ရှုရန်",
-    "get_consultation": "အခမဲ့ ဆွေးနွေးတိုင်ပင်ရန်",
-    "view_details": "အသေးစိတ်ကြည့်ရန်",
-    "call_us": "ဖုန်းခေါ်ဆိုရန်",
-    "send_message": "စာပို့ရန်"
+    "browse_cars": "ကားများကို ကြည့်ရှုမည်",
+    "get_consultation": "အခမဲ့ အကြံဉာဏ်ရယူမည်",
+    "view_details": "အသေးစိတ်ကြည့်ရှုမည်",
+    "call_us": "ဖုန်းဆက်မည်",
+    "send_message": "စာပို့မည်"
   },
   "labels": {
     "phone": "ဖုန်း",

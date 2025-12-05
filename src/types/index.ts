@@ -1,7 +1,5 @@
-import { Car } from 'lucide-react';
-
 export interface Car {
-  id: number;
+  id: string;
   brand: string;
   model: string;
   year: number;
@@ -11,9 +9,23 @@ export interface Car {
   fuelType: string;
   transmission: string;
   bodyType: string;
+  color?: string;
   status: 'available' | 'sold' | 'reserved';
   location: string;
+  features: string[];
+  description: string;
   isFeatured?: boolean;
   isPopular?: boolean;
-  // Add other fields as needed
+}
+
+export interface FilterOptions {
+  brands: string[];
+  models: string[];
+  priceRange: [number, number];
+  yearRange: [number, number];
+  mileageRange: [number, number];
+  fuelTypes: string[];
+  transmissions: string[];
+  bodyTypes: string[];
+  status: Array<'available' | 'sold' | 'reserved'>;
 }

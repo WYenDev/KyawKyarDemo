@@ -1,10 +1,12 @@
 {
   "nav": {
     "home": "Home",
-    "cars": "Cars",
+    "buyCars": "Buy Cars",
+    "sellCars": "Sell Cars",
     "about": "About",
     "reviews": "Reviews",
-    "contact": "Contact"
+    "contact": "Contact",
+    "language": "မြန်မာ"
   },
   "buttons": {
     "browse_cars": "Browse Cars Now",
