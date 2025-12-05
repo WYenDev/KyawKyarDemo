@@ -145,7 +145,7 @@ const Header: React.FC = () => {
               >
                 <Globe className="h-5 w-5 text-gray-500" />
                 <span className="font-medium text-gray-700">
-                  {currentLang === 'en' ? 'English' : 'မြန်မာ'}
+                  {t('nav.language')}
                 </span>
               </button>
               <a
