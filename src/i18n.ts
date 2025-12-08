@@ -42,8 +42,8 @@ i18n
         reviews: mmReviews,
       },
     },
-    lng: 'en', // default language
-    fallbackLng: 'en',
+    lng: 'mm', // default language
+    fallbackLng: 'mm',
     ns: ['common', 'home', 'about', 'cars', 'contact', 'footer', 'reviews'],
     defaultNS: 'common',
     interpolation: {
