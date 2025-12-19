@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Car, Phone, Menu, X, Globe } from 'lucide-react';
+import { Car, Phone, Menu, X, Globe, User, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const Header: React.FC = () => {
@@ -24,8 +24,8 @@ const Header: React.FC = () => {
     const active = isActive(path);
     return `px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
       active
-        ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
-        : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
+        : 'text-slate-600 hover:text-indigo-600 hover:bg-indigo-50'
     }`;
   };
 
@@ -43,6 +43,19 @@ const Header: React.FC = () => {
     { path: '/contact', label: t('nav.contact') },
   ];
 
+  const accountRef = useRef<HTMLDivElement | null>(null);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setIsAccountOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -55,15 +68,14 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-200 group-hover:scale-105 transition-transform duration-200">
+            <div className="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-200 group-hover:scale-105 transition-transform duration-200">
               <Car className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 tracking-tight group-hover:text-blue-700 transition-colors">
+              <h1 className="text-xl font-bold text-gray-900 tracking-tight group-hover:text-indigo-700 transition-colors">
                 KyawKyar
               </h1>
               <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                {/* You may want to move tagline to common.json or home.json */}
                 {t('tagline', "Myanmar's #1 Used Car Dealer")}
               </p>
             </div>
@@ -82,22 +94,50 @@ const Header: React.FC = () => {
           <div className="hidden md:flex items-center gap-3">
             <button
               onClick={handleLanguageChange}
-              className="flex items-center gap-2 px-3 py-2 rounded-full border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 group"
+              className="flex items-center gap-2 px-3 py-2 rounded-full border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 group"
               aria-label="Toggle Language"
             >
-              <Globe className="h-4 w-4 text-gray-500 group-hover:text-blue-600" />
-              <span className="text-sm font-medium text-gray-700 group-hover:text-blue-700">
+              <Globe className="h-4 w-4 text-gray-500 group-hover:text-indigo-600" />
+              <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">
                 {t(`nav.language`)}
               </span>
             </button>
 
             <a
               href="tel:+959123456789"
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-900 text-white hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-200"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-900 text-white hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-200"
               aria-label={t('buttons.call_us')}
             >
               <Phone className="h-4 w-4" />
             </a>
+
+            {/* Account / Avatar Button */}
+            <div ref={accountRef} className="relative">
+              <button
+                onClick={() => setIsAccountOpen((s) => !s)}
+                aria-expanded={isAccountOpen}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-700">
+                  <User className="h-4 w-4" />
+                </span>
+                <ChevronDown className="h-4 w-4 text-slate-500" />
+              </button>
+
+              {isAccountOpen && (
+                <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-100 rounded-md shadow-lg py-1 z-50">
+                  <Link
+                    to="/login"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-gray-50"
+                    onClick={() => setIsAccountOpen(false)}
+                  >
+                    <User className="h-4 w-4 text-slate-500" />
+                    <span>{t('buttons.login', 'Login')}</span>
+                  </Link>
+                  {/* Register removed: admin-only login; no public signup */}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -126,7 +166,7 @@ const Header: React.FC = () => {
                   to={item.path}
                   className={`px-4 py-3 rounded-xl text-base font-medium transition-colors ${
                     isActive(item.path)
-                      ? 'bg-blue-50 text-blue-700'
+                      ? 'bg-indigo-50 text-indigo-700'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
@@ -141,20 +181,26 @@ const Header: React.FC = () => {
                 onClick={() => {
                   handleLanguageChange();
                 }}
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors"
               >
                 <Globe className="h-5 w-5 text-gray-500" />
-                <span className="font-medium text-gray-700">
-                  {t('nav.language')}
-                </span>
+                <span className="font-medium text-slate-700">{t('nav.language')}</span>
               </button>
               <a
                 href="tel:+959123456789"
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-sm"
               >
                 <Phone className="h-5 w-5" />
                 <span className="font-medium">{t('buttons.call_us')}</span>
               </a>
+              <Link
+                to="/login"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors"
+              >
+                <User className="h-5 w-5" />
+                <span className="font-medium">{t('buttons.login', 'Login')}</span>
+              </Link>
+              {/* Register removed: admin-only site, no public signup */}
             </div>
           </div>
         </div>

@@ -1,3 +1,35 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --color-bg: #f8fafc; /* slate-50 */
+  --color-surface: #ffffff;
+  --color-text: #0f172a; /* slate-900 */
+  --color-muted: #64748b; /* slate-500 */
+  --color-accent: #4f46e5; /* indigo-600 */
+  --color-accent-600: #4338ca; /* indigo-700 */
+  --radius-lg: 1rem;
+  --card-shadow: 0 10px 30px rgba(2,6,23,0.06);
+}
+
+html, body, #root {
+  height: 100%;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* small utility helpers not covered by Tailwind classes */
+.card-soft {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+}
+
+.btn-primary {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-accent-600);
+}

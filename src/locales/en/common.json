@@ -6,6 +6,7 @@
     "about": "About",
     "reviews": "Reviews",
     "contact": "Contact",
+    "language": "မြန်မာ",
     "language": "မြန်မာ"
   },
   "buttons": {
@@ -13,8 +14,9 @@
     "get_consultation": "Get Free Consultation",
     "view_details": "View Details",
     "call_us": "Call Us",
-    "send_message": "Send Message"
-  },
+"send_message": "Send Message",
+      "login": "Login"
+    },
   "labels": {
     "phone": "Phone",
     "email": "Email",

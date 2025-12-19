@@ -33,7 +33,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
 
   return (
     <div
-      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group cursor-pointer"
+      className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer card-soft"
       onClick={handleClick}
       role="button"
       tabIndex={0}
@@ -71,16 +71,16 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
 
       <div className="p-6">
         <div className="mb-3">
-          <h3 className="text-xl font-bold text-gray-900 mb-1">
+          <h3 className="text-xl font-bold text-slate-900 mb-1">
             {car.brand} {car.model}
           </h3>
-          <div className="flex items-center text-gray-600 text-sm">
+          <div className="flex items-center text-slate-600 text-sm">
             <MapPin className="h-4 w-4 mr-1" />
             {car.location}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-600">
+        <div className="grid grid-cols-2 gap-4 mb-4 text-sm text-slate-600">
           <div className="flex items-center">
             <Calendar className="h-4 w-4 mr-2 text-gray-400" />
             {car.year}
@@ -100,7 +100,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         </div>
 
         <div className="flex justify-between items-center">
-          <div className="text-2xl font-bold text-blue-700">
+          <div className="text-2xl font-bold text-indigo-600">
             {formatPriceLakhs(car.price)}
           </div>
         </div>

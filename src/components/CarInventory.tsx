@@ -26,7 +26,7 @@ import { Search } from 'lucide-react';
   });
 
   const filteredAndSortedCars = useMemo(() => {
-    let filtered = cars.filter(car => {
+    const filtered = cars.filter(car => {
       // Search filter
       const matchesSearch = car.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            car.model.toLowerCase().includes(searchTerm.toLowerCase());
@@ -92,8 +92,8 @@ import { Search } from 'lucide-react';
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('title')}</h1>
-        <p className="text-xl text-gray-600">
+        <h1 className="text-4xl font-bold text-slate-900 mb-4">{t('title')}</h1>
+        <p className="text-xl text-slate-600">
           {t('subtitle')}
         </p>
       </div>
@@ -114,19 +114,19 @@ import { Search } from 'lucide-react';
           {/* Search and Sort */}
           <div className="mb-6 flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <input
-                type="text"
-                placeholder="Search by brand or model..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+               <input
+                 type="text"
+                 placeholder="Search by brand or model..."
+                 value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)}
+                 className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+               />
             </div>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              onChange={(e) => setSortBy(e.target.value as 'price-low' | 'price-high' | 'year-new' | 'year-old' | 'mileage-low')}
+              className="px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
             >
               <option value="price-low">Price: Low to High</option>
               <option value="price-high">Price: High to Low</option>
@@ -138,16 +138,16 @@ import { Search } from 'lucide-react';
 
           {/* Results Summary */}
           <div className="mb-6 flex flex-wrap gap-4 text-sm">
-            <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full">
+            <div className="bg-slate-100 text-slate-800 px-3 py-1 rounded-full">
               Available: {availableCars.length}
             </div>
-            <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full">
+            <div className="bg-slate-100 text-slate-800 px-3 py-1 rounded-full">
               Sold: {soldCars.length}
             </div>
-            <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
+            <div className="bg-slate-100 text-slate-800 px-3 py-1 rounded-full">
               Reserved: {reservedCars.length}
             </div>
-            <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+            <div className="bg-slate-100 text-slate-800 px-3 py-1 rounded-full">
               Total Results: {filteredAndSortedCars.length}
             </div>
           </div>
@@ -164,9 +164,9 @@ import { Search } from 'lucide-react';
             </div>
           ) : (
             <div className="text-center py-12">
-              <div className="text-gray-400 text-6xl mb-4">🚗</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No cars found</h3>
-              <p className="text-gray-600">Try adjusting your search criteria or filters</p>
+              <div className="text-slate-400 text-6xl mb-4">🚗</div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2">No cars found</h3>
+              <p className="text-slate-600">Try adjusting your search criteria or filters</p>
             </div>
           )}
         </div>
