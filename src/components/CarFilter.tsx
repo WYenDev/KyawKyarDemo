@@ -1,6 +1,6 @@
 import React from 'react';
 import { FilterOptions } from '../types';
-import { brands, fuelTypes, transmissions, brandModels } from '../data/cars';
+import { brands as localBrands, fuelTypes, transmissions, brandModels as localBrandModels } from '../data/cars';
 import { Filter, X } from 'lucide-react';
 import { formatPriceLakhs } from '../utils/price';
 
@@ -9,9 +9,11 @@ interface CarFilterProps {
   onFiltersChange: (filters: FilterOptions) => void;
   isOpen: boolean;
   onToggle: () => void;
+  serverBrands?: string[];
+  serverBrandModels?: Record<string, string[]>;
 }
 
-const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen, onToggle }) => {
+const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen, onToggle, serverBrands, serverBrandModels }) => {
 
   const updateFilters = (key: keyof FilterOptions, value: FilterOptions[keyof FilterOptions]) => {
     onFiltersChange({ ...filters, [key]: value });
@@ -31,13 +33,16 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
     });
   };
 
+  const brandsToShow = serverBrands && serverBrands.length > 0 ? serverBrands : localBrands;
+  const brandModelsToUse = serverBrandModels && Object.keys(serverBrandModels).length > 0 ? serverBrandModels : localBrandModels;
+
   const getAvailableModels = () => {
     if (filters.brands.length === 0) return [];
     
     const availableModels: string[] = [];
-    filters.brands.forEach(brand => {
-      if (brandModels[brand]) {
-        availableModels.push(...brandModels[brand]);
+    filters.brands.forEach((b: string) => {
+      if (brandModelsToUse[b]) {
+        availableModels.push(...brandModelsToUse[b]);
       }
     });
     return availableModels;
@@ -136,7 +141,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-3">Brand</label>
               <div className="space-y-2">
-                {brands.map((brand) => (
+                {brandsToShow.map((brand: string) => (
                   <label key={brand} className="flex items-center">
                     <input
                       type="checkbox"
@@ -147,7 +152,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
                           onFiltersChange({ ...filters, brands: newBrands });
                         } else {
                           const remainingBrands = filters.brands.filter((b) => b !== brand);
-                          const availableModels = remainingBrands.flatMap((b) => brandModels[b] || []);
+                          const availableModels = remainingBrands.flatMap((b) => brandModelsToUse[b] || []);
                           const newModels = filters.models.filter((m) => availableModels.includes(m));
                           onFiltersChange({ ...filters, brands: remainingBrands, models: newModels });
                         }

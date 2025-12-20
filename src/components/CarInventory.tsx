@@ -5,7 +5,8 @@ import { FilterOptions } from '../types';
 import CarCard from './CarCard';
 import CarFilter from './CarFilter';
 import { Search } from 'lucide-react';
- 
+import { useGetApiCarsFilters } from '../services/api';
+
  const CarInventory: React.FC = () => {
    const { t } = useTranslation('cars');
  
@@ -24,6 +25,11 @@ import { Search } from 'lucide-react';
     bodyTypes: [],
     status: []
   });
+
+  // Fetch filter metadata from the API
+  const { data: filterData, isLoading: filtersLoading, isError: filtersError } = useGetApiCarsFilters();
+  const serverBrands = filterData?.brandsWithModels ? Object.keys(filterData.brandsWithModels) : undefined;
+  const serverBrandModels = filterData?.brandsWithModels ?? undefined;
 
   const filteredAndSortedCars = useMemo(() => {
     const filtered = cars.filter(car => {
@@ -101,12 +107,20 @@ import { Search } from 'lucide-react';
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter Sidebar */}
         <div className="lg:w-80 flex-shrink-0">
-          <CarFilter
-            filters={filters}
-            onFiltersChange={setFilters}
-            isOpen={isFilterOpen}
-            onToggle={() => setIsFilterOpen(!isFilterOpen)}
-          />
+          {filtersLoading ? (
+            <div className="p-4 text-sm text-slate-500">Loading filters...</div>
+          ) : filtersError ? (
+            <div className="p-4 text-sm text-red-500">Failed to load filters</div>
+          ) : (
+            <CarFilter
+              filters={filters}
+              onFiltersChange={setFilters}
+              isOpen={isFilterOpen}
+              onToggle={() => setIsFilterOpen(!isFilterOpen)}
+              serverBrands={serverBrands}
+              serverBrandModels={serverBrandModels}
+            />
+          )}
         </div>
 
         {/* Main Content */}
