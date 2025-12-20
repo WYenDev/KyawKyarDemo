@@ -19,8 +19,8 @@ export interface Car {
 }
 
 export interface FilterOptions {
-  brands: string[];
-  models: string[];
+  brand: string; // empty string means "All"
+  model: string; // empty string means "All"
   priceRange: [number, number];
   yearRange: [number, number];
   mileageRange: [number, number];

@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { cars } from '../data/cars';
 import { FilterOptions } from '../types';
 import CarCard from './CarCard';
 import CarFilter from './CarFilter';
 import { Search } from 'lucide-react';
-import { useGetApiCarsFilters } from '../services/api';
+import { useGetApiCarsSearch, useGetApiCarsFilters } from '../services/api';
+import type { GetApiCarsSearchParams } from '../services/api';
+import { Status } from '../services/api';
 
  const CarInventory: React.FC = () => {
    const { t } = useTranslation('cars');
@@ -15,8 +16,8 @@ import { useGetApiCarsFilters } from '../services/api';
   const [sortBy, setSortBy] = useState<'price-low' | 'price-high' | 'year-new' | 'year-old' | 'mileage-low'>('price-low');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
-    brands: [],
-    models: [],
+    brand: '',
+    model: '',
     priceRange: [0, 100000000],
     yearRange: [2010, 2024],
     mileageRange: [0, 200000],
@@ -31,69 +32,39 @@ import { useGetApiCarsFilters } from '../services/api';
   const serverBrands = filterData?.brandsWithModels ? Object.keys(filterData.brandsWithModels) : undefined;
   const serverBrandModels = filterData?.brandsWithModels ?? undefined;
 
-  const filteredAndSortedCars = useMemo(() => {
-    const filtered = cars.filter(car => {
-      // Search filter
-      const matchesSearch = car.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           car.model.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      // Brand filter
-      const matchesBrand = filters.brands.length === 0 || filters.brands.includes(car.brand);
-      
-      // Model filter
-      const matchesModel = filters.models.length === 0 || filters.models.includes(car.model);
-      
-      // Price filter
-      const matchesPrice = car.price >= filters.priceRange[0] && car.price <= filters.priceRange[1];
-      
-      // Year filter
-      const matchesYear = car.year >= filters.yearRange[0] && car.year <= filters.yearRange[1];
-      
-      // Mileage filter
-      const matchesMileage = car.mileage >= filters.mileageRange[0] && car.mileage <= filters.mileageRange[1];
-      
-      // Fuel type filter
-      const matchesFuelType = filters.fuelTypes.length === 0 || filters.fuelTypes.includes(car.fuelType);
-      
-      // Transmission filter
-      const matchesTransmission = filters.transmissions.length === 0 || filters.transmissions.includes(car.transmission);
-      
-      // Body type filter
-      const matchesBodyType = filters.bodyTypes.length === 0 || filters.bodyTypes.includes(car.bodyType);
-      
-      // Status filter
-      const matchesStatus = filters.status.length === 0 || filters.status.includes(car.status);
+  // Build search params from filters and search term
+  const buildSearchParams = (): GetApiCarsSearchParams => {
+    const params: GetApiCarsSearchParams = {};
+    if (filters.model) params.model = filters.model;
+    if (filters.brand) params.brand = filters.brand;
+    if (filters.priceRange) {
+      params.priceMin = filters.priceRange[0];
+      params.priceMax = filters.priceRange[1];
+    }
+    if (filters.yearRange) {
+      params.yearMin = filters.yearRange[0];
+      params.yearMax = filters.yearRange[1];
+    }
+    // map first fuel and transmission if set (API expects single values)
+    if (filters.fuelTypes && filters.fuelTypes.length > 0) params.fuel = filters.fuelTypes[0] as any;
+    if (filters.transmissions && filters.transmissions.length > 0) params.transmission = filters.transmissions[0] as any;
+    // include search term as brand/model fallback
+    if (searchTerm) {
+      // give priority to model search
+      params.model = params.model || searchTerm;
+      params.brand = params.brand || searchTerm;
+    }
+    return params;
+  };
 
-      return matchesSearch && matchesBrand && matchesModel && matchesPrice && 
-             matchesYear && matchesMileage && matchesFuelType && matchesTransmission && 
-             matchesBodyType && matchesStatus;
-    });
+  const searchParams = buildSearchParams();
 
-    // Sort the filtered results
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low':
-          return a.price - b.price;
-        case 'price-high':
-          return b.price - a.price;
-        case 'year-new':
-          return b.year - a.year;
-        case 'year-old':
-          return a.year - b.year;
-        case 'mileage-low':
-          return a.mileage - b.mileage;
-        default:
-          return 0;
-      }
-    });
+  const { data: searchResponse, isLoading: carsLoading, isError: carsError } = useGetApiCarsSearch(searchParams);
 
-    return filtered;
-  }, [searchTerm, filters, sortBy]);
- 
-  const availableCars = filteredAndSortedCars.filter(car => car.status === 'available');
 
-  const soldCars = filteredAndSortedCars.filter(car => car.status === 'sold');
-  const reservedCars = filteredAndSortedCars.filter(car => car.status === 'reserved');
+  const availableCars = searchResponse?.items?.filter(car => car.status === Status.Available);
+  const soldCars = searchResponse?.items?.filter(car => car.status === Status.Sold);
+  const totalCount = searchResponse?.total ?? 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -153,23 +124,24 @@ import { useGetApiCarsFilters } from '../services/api';
           {/* Results Summary */}
           <div className="mb-6 flex flex-wrap gap-4 text-sm">
             <div className="bg-slate-100 text-slate-800 px-3 py-1 rounded-full">
-              Available: {availableCars.length}
+              Available: {availableCars?.length}
             </div>
             <div className="bg-slate-100 text-slate-800 px-3 py-1 rounded-full">
-              Sold: {soldCars.length}
+              Sold: {soldCars?.length}
             </div>
             <div className="bg-slate-100 text-slate-800 px-3 py-1 rounded-full">
-              Reserved: {reservedCars.length}
-            </div>
-            <div className="bg-slate-100 text-slate-800 px-3 py-1 rounded-full">
-              Total Results: {filteredAndSortedCars.length}
+              Total Results: {totalCount}
             </div>
           </div>
 
           {/* Car Grid */}
-          {filteredAndSortedCars.length > 0 ? (
+          {carsLoading ? (
+            <div className="p-6 text-sm text-slate-500">Loading cars...</div>
+          ) : carsError ? (
+            <div className="p-6 text-sm text-red-500">Failed to load cars</div>
+          ) : searchResponse?.total && searchResponse.total > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredAndSortedCars.map((car) => (
+              {searchResponse?.items?.map((car) => (
                 <CarCard
                   key={car.id}
                   car={car}

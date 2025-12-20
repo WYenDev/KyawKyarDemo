@@ -1,12 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Car } from '../types';
+import { CarListItem, Status} from '../services/api'
 import { Calendar, Gauge, Fuel, Settings, MapPin } from 'lucide-react';
 import { formatPriceLakhs } from '../utils/price';
  
 interface CarCardProps {
-  car: Car;
+  car: CarListItem;
 }
  
 const CarCard: React.FC<CarCardProps> = ({ car }) => {
@@ -14,14 +14,14 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const navigate = useNavigate();
 
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: Status) => {
     switch (status) {
-      case 'available':
+      case Status.Available:
         return 'bg-green-100 text-green-800 border border-green-200';
-      case 'sold':
+      case Status.Sold:
         return 'bg-red-100 text-red-800 border border-red-200';
-      case 'reserved':
-        return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+      //case 'reserved':
+      //  return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
       default:
         return 'bg-gray-100 text-gray-800 border border-gray-200';
     }
@@ -46,10 +46,12 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
     >
       <div className="relative">
         <img 
-          src={car.images[0]} 
-          alt={`${car.brand} ${car.model}`}
+          src={car.primaryImage?.url} 
+          alt={`carImage} ${car.model?.name}`}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
+        {/* 
+
         <div className="absolute top-3 left-3 flex gap-2">
           {car.isFeatured && (
             <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
@@ -62,9 +64,10 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             </span>
           )}
         </div>
+        */}
         <div className="absolute top-3 right-3">
           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(car.status)}`}>
-            {t(`status.${car.status}`)}
+            {t(`${car.status}`)}
           </span>
         </div>
       </div>
@@ -72,26 +75,26 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
       <div className="p-6">
         <div className="mb-3">
           <h3 className="text-xl font-bold text-slate-900 mb-1">
-            {car.brand} {car.model}
+            {car.model?.brand?.name || ""} {car.model?.name || ""}
           </h3>
           <div className="flex items-center text-slate-600 text-sm">
             <MapPin className="h-4 w-4 mr-1" />
-            {car.location}
+            {car.showroom?.city || 'Unknown Location'}
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-4 text-sm text-slate-600">
           <div className="flex items-center">
             <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-            {car.year}
+            {car.modelYear}
           </div>
           <div className="flex items-center">
             <Gauge className="h-4 w-4 mr-2 text-gray-400" />
-            {car.mileage.toLocaleString()} km
+            {(car.mileage).toLocaleString()} km
           </div>
           <div className="flex items-center">
             <Fuel className="h-4 w-4 mr-2 text-gray-400" />
-            {car.fuelType}
+            {car.fuel}
           </div>
           <div className="flex items-center">
             <Settings className="h-4 w-4 mr-2 text-gray-400" />
@@ -101,7 +104,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
 
         <div className="flex justify-between items-center">
           <div className="text-2xl font-bold text-indigo-600">
-            {formatPriceLakhs(car.price)}
+            {formatPriceLakhs(car.price || 0)}
           </div>
         </div>
       </div>

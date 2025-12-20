@@ -16,13 +16,13 @@ interface CarFilterProps {
 const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen, onToggle, serverBrands, serverBrandModels }) => {
 
   const updateFilters = (key: keyof FilterOptions, value: FilterOptions[keyof FilterOptions]) => {
-    onFiltersChange({ ...filters, [key]: value });
+    onFiltersChange({ ...filters, [key]: value } as FilterOptions);
   };
 
   const clearFilters = () => {
     onFiltersChange({
-      brands: [],
-      models: [],
+      brand: '',
+      model: '',
       priceRange: [0, 100000000],
       yearRange: [2010, 2024],
       mileageRange: [0, 200000],
@@ -37,15 +37,8 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
   const brandModelsToUse = serverBrandModels && Object.keys(serverBrandModels).length > 0 ? serverBrandModels : localBrandModels;
 
   const getAvailableModels = () => {
-    if (filters.brands.length === 0) return [];
-    
-    const availableModels: string[] = [];
-    filters.brands.forEach((b: string) => {
-      if (brandModelsToUse[b]) {
-        availableModels.push(...brandModelsToUse[b]);
-      }
-    });
-    return availableModels;
+    if (!filters.brand) return [];
+    return brandModelsToUse[filters.brand] || [];
   };
 
   return (
@@ -137,59 +130,41 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
               </div>
             </div>
 
-            {/* Brand Filter */}
+            {/* Brand Filter - single select */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-3">Brand</label>
-              <div className="space-y-2">
+              <select
+                value={filters.brand}
+                onChange={(e) => {
+                  const newBrand = e.target.value;
+                  const availableModels = brandModelsToUse[newBrand] || [];
+                  const retainedModel = availableModels.includes(filters.model) ? filters.model : '';
+                  onFiltersChange({ ...filters, brand: newBrand, model: retainedModel });
+                }}
+                className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm"
+              >
+                <option value="">All</option>
                 {brandsToShow.map((brand: string) => (
-                  <label key={brand} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={filters.brands.includes(brand)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          const newBrands = [...filters.brands, brand];
-                          onFiltersChange({ ...filters, brands: newBrands });
-                        } else {
-                          const remainingBrands = filters.brands.filter((b) => b !== brand);
-                          const availableModels = remainingBrands.flatMap((b) => brandModelsToUse[b] || []);
-                          const newModels = filters.models.filter((m) => availableModels.includes(m));
-                          onFiltersChange({ ...filters, brands: remainingBrands, models: newModels });
-                        }
-                      }}
-                      className="rounded border-slate-200 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="ml-2 text-sm text-slate-700">{brand}</span>
-                  </label>
+                  <option key={brand} value={brand}>{brand}</option>
                 ))}
-              </div>
+              </select>
             </div>
 
-            {/* Model Filter - Only show when brands are selected */}
-            {filters.brands.length > 0 && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-3">Model</label>
-<div className="space-y-2">
-                  {getAvailableModels().map((model) => (
-                    <label key={model} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.models.includes(model)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            updateFilters('models', [...filters.models, model]);
-                          } else {
-                            updateFilters('models', filters.models.filter(m => m !== model));
-                          }
-                        }}
-                        className="rounded border-slate-200 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="ml-2 text-sm text-slate-700">{model}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Model Filter */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-3">Model</label>
+              <select
+                value={filters.model}
+                onChange={(e) => updateFilters('model', e.target.value as any)}
+                className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm"
+                disabled={!filters.brand}
+              >
+                <option value="">All</option>
+                {getAvailableModels().map((model) => (
+                  <option key={model} value={model}>{model}</option>
+                ))}
+              </select>
+            </div>
 
             {/* Year Range */}
             <div>
