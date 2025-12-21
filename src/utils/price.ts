@@ -1,9 +1,8 @@
 import i18n from '../i18n';
 
-export const LAKH_VALUE = 100000;
 
 export const formatPriceLakhs = (price: number): string => {
-  const lakhs = price / LAKH_VALUE;
+  const lakhs = price ;
   const formatted = lakhs.toLocaleString(undefined, {
     maximumFractionDigits: 0,
   });

@@ -16,15 +16,17 @@ interface CarFilterProps {
 const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen, onToggle, serverBrands, serverBrandModels }) => {
 
   const updateFilters = (key: keyof FilterOptions, value: FilterOptions[keyof FilterOptions]) => {
-    onFiltersChange({ ...filters, [key]: value });
+    onFiltersChange({ ...filters, [key]: value } as FilterOptions);
   };
+
+  const CURRENT_YEAR = new Date().getFullYear();
 
   const clearFilters = () => {
     onFiltersChange({
-      brands: [],
-      models: [],
-      priceRange: [0, 100000000],
-      yearRange: [2010, 2024],
+      brand: '',
+      model: '',
+      priceRange: [0, 5000], // units: Lakhs
+      yearRange: [1980, CURRENT_YEAR + 1],
       mileageRange: [0, 200000],
       fuelTypes: [],
       transmissions: [],
@@ -37,15 +39,8 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
   const brandModelsToUse = serverBrandModels && Object.keys(serverBrandModels).length > 0 ? serverBrandModels : localBrandModels;
 
   const getAvailableModels = () => {
-    if (filters.brands.length === 0) return [];
-    
-    const availableModels: string[] = [];
-    filters.brands.forEach((b: string) => {
-      if (brandModelsToUse[b]) {
-        availableModels.push(...brandModelsToUse[b]);
-      }
-    });
-    return availableModels;
+    if (!filters.brand) return [];
+    return brandModelsToUse[filters.brand] || [];
   };
 
   return (
@@ -54,241 +49,247 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
       <div className="lg:hidden mb-6">
         <button
           onClick={onToggle}
-          className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg"
+          className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:shadow-md transition-shadow"
         >
           <Filter className="h-4 w-4" />
-          <span>Filters</span>
+          <span className="font-medium">Filters</span>
         </button>
       </div>
 
       {/* Filter Sidebar */}
       <div className={`
         fixed inset-y-0 left-0 z-40 w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
-        lg:relative lg:translate-x-0 lg:shadow-none lg:bg-slate-50 lg:rounded-xl lg:p-6
+        lg:relative lg:translate-x-0 lg:shadow-none lg:bg-transparent lg:rounded-xl lg:p-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="p-6 lg:p-0 h-full lg:h-auto overflow-y-auto lg:overflow-visible">
+        <div className="p-6 lg:p-6 h-full lg:h-auto overflow-y-auto lg:overflow-visible bg-white lg:bg-slate-50 rounded-xl lg:rounded-none shadow-lg lg:shadow-none">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6 lg:mb-0">
+          <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-slate-900">Filters</h3>
             <div className="flex items-center space-x-2">
               <button
                 onClick={onToggle}
                 className="lg:hidden text-slate-500 hover:text-slate-700"
+                aria-label="Close filters"
               >
                 <X className="h-5 w-5" />
               </button>
               <button
                 onClick={clearFilters}
-                className="text-indigo-600 hover:text-teal-700 text-sm"
+                className="text-indigo-600 hover:text-indigo-700 text-sm"
               >
                 Clear All
               </button>
             </div>
           </div>
 
-          <div className="space-y-6">
-            {/* Price Range */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-3">
-                Price Range
-              </label>
-              <div className="space-y-2">
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs text-slate-500 mb-1 block">Min price</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100000000"
-                      step="1000000"
-                      value={filters.priceRange[0]}
-                      onChange={(e) => {
-                        const newMin = parseInt(e.target.value);
-                        if (newMin <= filters.priceRange[1]) {
-                          updateFilters('priceRange', [newMin, filters.priceRange[1]]);
-                        }
-                      }}
-                      className="w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-slate-500 mb-1 block">Max price</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100000000"
-                      step="1000000"
-                      value={filters.priceRange[1]}
-                      onChange={(e) => {
-                        const newMax = parseInt(e.target.value);
-                        if (newMax >= filters.priceRange[0]) {
-                          updateFilters('priceRange', [filters.priceRange[0], newMax]);
-                        }
-                      }}
-                      className="w-full"
-                    />
-                  </div>
+          <div>
+            <div className="p-5 bg-white border border-slate-100 rounded-lg shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h4 className="text-base font-semibold text-slate-900">Filters</h4>
+                  <p className="text-xs text-slate-500">Refine results using multiple filters</p>
                 </div>
-                <div className="flex justify-between text-xs text-slate-500">
-                  <span>{formatPriceLakhs(filters.priceRange[0])}</span>
-                  <span>{formatPriceLakhs(filters.priceRange[1])}</span>
+                <div className="flex items-center gap-3 text-right text-xs text-slate-600">
+                  <div>{formatPriceLakhs(filters.priceRange[0])}</div>
+                  <div className="w-px h-4 bg-slate-200" />
+                  <div>{formatPriceLakhs(filters.priceRange[1])}</div>
                 </div>
               </div>
-            </div>
 
-            {/* Brand Filter */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-3">Brand</label>
-              <div className="space-y-2">
-                {brandsToShow.map((brand: string) => (
-                  <label key={brand} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={filters.brands.includes(brand)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          const newBrands = [...filters.brands, brand];
-                          onFiltersChange({ ...filters, brands: newBrands });
-                        } else {
-                          const remainingBrands = filters.brands.filter((b) => b !== brand);
-                          const availableModels = remainingBrands.flatMap((b) => brandModelsToUse[b] || []);
-                          const newModels = filters.models.filter((m) => availableModels.includes(m));
-                          onFiltersChange({ ...filters, brands: remainingBrands, models: newModels });
-                        }
-                      }}
-                      className="rounded border-slate-200 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="ml-2 text-sm text-slate-700">{brand}</span>
-                  </label>
-                ))}
+              {/* Price */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <label className="text-sm font-medium text-slate-800">Price Range</label>
+                    <p className="text-xs text-slate-500">Select price in Lakhs</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="5000"
+                    step="1"
+                    value={filters.priceRange[0]}
+                    onChange={(e) => {
+                      const newMin = parseInt(e.target.value, 10);
+                      if (newMin <= filters.priceRange[1]) {
+                        updateFilters('priceRange', [newMin, filters.priceRange[1]]);
+                      }
+                    }}
+                    className="w-full h-2 bg-slate-100 rounded-lg appearance-none accent-indigo-600"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="5000"
+                    step="1"
+                    value={filters.priceRange[1]}
+                    onChange={(e) => {
+                      const newMax = parseInt(e.target.value, 10);
+                      if (newMax >= filters.priceRange[0]) {
+                        updateFilters('priceRange', [filters.priceRange[0], newMax]);
+                      }
+                    }}
+                    className="w-full h-2 bg-slate-100 rounded-lg appearance-none accent-indigo-600"
+                  />
+                </div>
+
+                <div className="mt-3 border-t border-slate-100 pt-3 grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-slate-500">Min</label>
+                    <div className="text-sm text-slate-800">{formatPriceLakhs(filters.priceRange[0])}</div>
+                  </div>
+                  <div className="text-right">
+                    <label className="text-xs text-slate-500">Max</label>
+                    <div className="text-sm text-slate-800">{formatPriceLakhs(filters.priceRange[1])}</div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* Model Filter - Only show when brands are selected */}
-            {filters.brands.length > 0 && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-3">Model</label>
-<div className="space-y-2">
+              <div className="border-t border-slate-100 pt-4">
+                <label className="block text-sm font-medium text-slate-800 mb-2">Brand</label>
+                <select
+                  value={filters.brand}
+                  onChange={(e) => {
+                    const newBrand = e.target.value;
+                    const availableModels = brandModelsToUse[newBrand] || [];
+                    const retainedModel = availableModels.includes(filters.model) ? filters.model : '';
+                    onFiltersChange({ ...filters, brand: newBrand, model: retainedModel });
+                  }}
+                  className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm shadow-sm bg-white"
+                >
+                  <option value="">All</option>
+                  {brandsToShow.map((brand: string) => (
+                    <option key={brand} value={brand}>{brand}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="border-t border-slate-100 pt-4">
+                <label className="block text-sm font-medium text-slate-800 mb-2">Model</label>
+                <select
+                  value={filters.model}
+                  onChange={(e) => updateFilters('model', e.target.value)}
+                  className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm shadow-sm bg-white"
+                  disabled={!filters.brand}
+                >
+                  <option value="">All</option>
                   {getAvailableModels().map((model) => (
-                    <label key={model} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.models.includes(model)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            updateFilters('models', [...filters.models, model]);
-                          } else {
-                            updateFilters('models', filters.models.filter(m => m !== model));
-                          }
-                        }}
-                        className="rounded border-slate-200 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="ml-2 text-sm text-slate-700">{model}</span>
-                    </label>
+                    <option key={model} value={model}>{model}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="border-t border-slate-100 pt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium text-slate-800">Year Range</h4>
+                  <p className="text-xs text-slate-500">From 1980 to next year</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <select
+                    value={filters.yearRange[0]}
+                    onChange={(e) => updateFilters('yearRange', [parseInt(e.target.value, 10), filters.yearRange[1]])}
+                    className="border border-slate-200 rounded-md px-3 py-2 text-sm bg-white"
+                  >
+                    {Array.from({ length: (new Date().getFullYear() + 1) - 1980 + 1 }, (_, i) => 1980 + i).map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={filters.yearRange[1]}
+                    onChange={(e) => updateFilters('yearRange', [filters.yearRange[0], parseInt(e.target.value, 10)])}
+                    className="border border-slate-200 rounded-md px-3 py-2 text-sm bg-white"
+                  >
+                    {Array.from({ length: (new Date().getFullYear() + 1) - 1980 + 1 }, (_, i) => 1980 + i).map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-100 pt-4">
+                <label className="block text-sm font-medium text-slate-800 mb-2">Fuel Type</label>
+                <div className="flex flex-wrap gap-2">
+                  {fuelTypes.map((fuelType) => (
+                    <button
+                      key={fuelType}
+                      onClick={() => {
+                        const selected = filters.fuelTypes.includes(fuelType);
+                        if (selected) {
+                          // deselect if already selected
+                          updateFilters('fuelTypes', []);
+                        } else {
+                          // single-select: selecting one clears others
+                          updateFilters('fuelTypes', [fuelType]);
+                        }
+                      }}
+                      aria-pressed={filters.fuelTypes.includes(fuelType)}
+                      className={`px-3 py-1 rounded-full text-sm border ${filters.fuelTypes.includes(fuelType) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200'}`}
+                    >
+                      {fuelType}
+                    </button>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Year Range */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-3">
-                Year Range
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <select
-                  value={filters.yearRange[0]}
-                  onChange={(e) => updateFilters('yearRange', [parseInt(e.target.value), filters.yearRange[1]])}
-                  className="border border-slate-200 rounded-md px-3 py-2 text-sm"
-                >
-                  {Array.from({ length: 15 }, (_, i) => 2010 + i).map(year => (
-                    <option key={year} value={year}>{year}</option>
+              <div className="border-t border-slate-100 pt-4">
+                <label className="block text-sm font-medium text-slate-800 mb-2">Transmission</label>
+                <div className="flex flex-wrap gap-2">
+                  {transmissions.map((transmission) => (
+                    <button
+                      key={transmission}
+                      onClick={() => {
+                        const selected = filters.transmissions.includes(transmission);
+                        if (selected) updateFilters('transmissions', filters.transmissions.filter(t => t !== transmission));
+                        else updateFilters('transmissions', [...filters.transmissions, transmission]);
+                      }}
+                      className={`px-3 py-1 rounded-full text-sm border ${filters.transmissions.includes(transmission) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200'}`}
+                    >
+                      {transmission}
+                    </button>
                   ))}
-                </select>
-                <select
-                  value={filters.yearRange[1]}
-                  onChange={(e) => updateFilters('yearRange', [filters.yearRange[0], parseInt(e.target.value)])}
-                  className="border border-slate-200 rounded-md px-3 py-2 text-sm"
-                >
-                  {Array.from({ length: 15 }, (_, i) => 2010 + i).map(year => (
-                    <option key={year} value={year}>{year}</option>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-100 pt-4">
+                <label className="block text-sm font-medium text-slate-800 mb-2">Status</label>
+                <div className="flex gap-2">
+                  {(['available', 'sold', 'reserved'] as const).map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => {
+                        const selected = filters.status.includes(status);
+                        if (selected) updateFilters('status', filters.status.filter(s => s !== status));
+                        else updateFilters('status', [...filters.status, status]);
+                      }}
+                      className={`px-3 py-1 rounded-full text-sm border ${filters.status.includes(status) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200'}`}
+                    >
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </button>
                   ))}
-                </select>
+                </div>
               </div>
+
             </div>
+          </div>
 
-            {/* Fuel Type */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-3">Fuel Type</label>
-              <div className="space-y-2">
-                {fuelTypes.map((fuelType) => (
-                  <label key={fuelType} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={filters.fuelTypes.includes(fuelType)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          updateFilters('fuelTypes', [...filters.fuelTypes, fuelType]);
-                        } else {
-                          updateFilters('fuelTypes', filters.fuelTypes.filter(f => f !== fuelType));
-                        }
-                      }}
-                      className="rounded border-slate-200 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="ml-2 text-sm text-slate-700">{fuelType}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Transmission */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-3">Transmission</label>
-              <div className="space-y-2">
-                {transmissions.map((transmission) => (
-                  <label key={transmission} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={filters.transmissions.includes(transmission)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          updateFilters('transmissions', [...filters.transmissions, transmission]);
-                        } else {
-                          updateFilters('transmissions', filters.transmissions.filter(t => t !== transmission));
-                        }
-                      }}
-                      className="rounded border-slate-200 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="ml-2 text-sm text-slate-700">{transmission}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-3">Status</label>
-              <div className="space-y-2">
-                 {(['available', 'sold', 'reserved'] as const).map((status) => (
-
-                  <label key={status} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={filters.status.includes(status)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          updateFilters('status', [...filters.status, status]);
-                        } else {
-                          updateFilters('status', filters.status.filter(s => s !== status));
-                        }
-                      }}
-                      className="rounded border-slate-200 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="ml-2 text-sm text-slate-700 capitalize">{status}</span>
-                  </label>
-                ))}
-              </div>
+          {/* Footer actions (desktop sticky) */}
+          <div className="mt-4 lg:mt-6">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={clearFilters}
+                className="text-sm text-slate-600 hover:text-slate-800"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => onToggle()}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:shadow-md"
+              >
+                Apply
+              </button>
             </div>
           </div>
         </div>
