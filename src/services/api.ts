@@ -134,6 +134,16 @@ export interface CarImage {
   mimeType: string;
   /** @nullable */
   altText?: string | null;
+  /**
+   * Public URL for the main image size
+   * @nullable
+   */
+  urlMain?: string | null;
+  /**
+   * Public URL for the thumbnail image
+   * @nullable
+   */
+  urlThumb?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -210,6 +220,7 @@ export interface CarCreate {
 }
 
 export interface CarUpdate {
+  id?: string;
   modelYear?: number;
   vin?: string;
   price?: number;
@@ -237,9 +248,8 @@ limit?: number;
 };
 
 export type GetApiBrands200 = {
-  cars?: Brand[];
+  items?: Brand[];
   total?: number;
-  counts?: number;
   page?: number;
   limit?: number;
 };
@@ -248,16 +258,11 @@ export type DeleteApiBrandsId200 = {
   deleted?: boolean;
 };
 
-export type GetApiCarImagesCarId200Item = {
-  id?: string;
-  storageBaseKey?: string;
-  isPrimary?: boolean;
-  sequenceNumber?: number;
-  mimeType?: string;
-  createdAt?: string;
+export type PostApiCarImagesCarIdUploadBody = {
+  images?: Blob[];
+  /** Index of the uploaded file (0-based) to mark as primary */
+  primaryIndex?: number;
 };
-
-export type PostApiCarImagesCarIdUploadBody = { [key: string]: unknown };
 
 export type PostApiCarImagesCarIdUpload201 = {
   message?: string;
@@ -275,7 +280,9 @@ export type PatchApiCarImagesImageIdSetPrimary200 = {
   setPrimary?: string;
 };
 
-export type PatchApiCarImagesImageIdReplaceBody = { [key: string]: unknown };
+export type PatchApiCarImagesImageIdReplaceBody = {
+  image?: Blob;
+};
 
 export type PatchApiCarImagesImageIdReplace200 = {
   replaced?: string;
@@ -762,7 +769,7 @@ export const getApiCarImagesCarId = (
 ) => {
       
       
-      return mutator<GetApiCarImagesCarId200Item[]>(
+      return mutator<CarImage[]>(
       {url: `/api/carImages/${carId}`, method: 'GET', signal
     },
       options);
@@ -856,6 +863,12 @@ export const postApiCarImagesCarIdUpload = (
 ) => {
       
       const formData = new FormData();
+if(postApiCarImagesCarIdUploadBody.images !== undefined) {
+ postApiCarImagesCarIdUploadBody.images.forEach(value => formData.append(`images`, value));
+ }
+if(postApiCarImagesCarIdUploadBody.primaryIndex !== undefined) {
+ formData.append(`primaryIndex`, postApiCarImagesCarIdUploadBody.primaryIndex.toString())
+ }
 
       return mutator<PostApiCarImagesCarIdUpload201>(
       {url: `/api/carImages/${carId}/upload`, method: 'POST',
@@ -1046,6 +1059,9 @@ export const patchApiCarImagesImageIdReplace = (
  options?: SecondParameter<typeof mutator>,) => {
       
       const formData = new FormData();
+if(patchApiCarImagesImageIdReplaceBody.image !== undefined) {
+ formData.append(`image`, patchApiCarImagesImageIdReplaceBody.image)
+ }
 
       return mutator<PatchApiCarImagesImageIdReplace200>(
       {url: `/api/carImages/${imageId}/replace`, method: 'PATCH',

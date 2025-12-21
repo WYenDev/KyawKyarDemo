@@ -1,20 +1,43 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { cars } from '../data/cars';
-import { Car } from '../types';
 import { Calendar, Gauge, Fuel, Settings, MapPin, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+
+import type { CarImage } from '../services/api';
+
+function getImageUrl(img: CarImage, kind: 'main' | 'thumb'): string {
+  const dyn = img as unknown as Record<string, unknown>;
+  const key = kind === 'main' ? 'urlMain' : 'urlThumb';
+  const dynUrl = typeof dyn[key] === 'string' ? (dyn[key] as string) : undefined;
+  return dynUrl ?? img.storageBaseKey ?? '';
+}
+
+
 import { formatPriceLakhs } from '../utils/price';
+import { Status, useGetApiCarsId } from '../services/api';
 
 const CarDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation('cars');
 
-  const car: Car | undefined = cars.find((item) => item.id === id);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  if (!car) {
+  const { data: carData, isLoading, isError } = useGetApiCarsId(id ?? '');
+
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="animate-pulse">
+          <div className="h-6 bg-slate-200 rounded w-32 mb-4" />
+          <div className="h-64 bg-slate-200 rounded mb-4" />
+          <div className="h-4 bg-slate-200 rounded w-48" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !carData) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <button
@@ -38,14 +61,13 @@ const CarDetails: React.FC = () => {
     );
   }
 
-  const images = car.images && car.images.length > 0 ? car.images : [''];
 
   const handlePreviousImage = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setCurrentImageIndex((prev) => (prev === 0 ? carData.images.length - 1 : prev - 1));
   };
 
   const handleNextImage = () => {
-    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setCurrentImageIndex((prev) => (prev === carData.images.length - 1 ? 0 : prev + 1));
   };
 
   return (
@@ -66,7 +88,7 @@ const CarDetails: React.FC = () => {
             <span className="mx-1">/</span>
             <span className="cursor-pointer hover:text-gray-800" onClick={() => navigate('/buyCars')}>{t('details.breadcrumb_inventory', 'Cars')}</span>
             <span className="mx-1">/</span>
-            <span className="text-gray-700">{car.brand} {car.model}</span>
+            <span className="text-gray-700">{carData?.model?.brand?.name ?? ''} {carData?.model?.name ?? ''}</span>
           </div>
         </div>
 
@@ -74,15 +96,15 @@ const CarDetails: React.FC = () => {
           {/* Gallery */}
           <div>
             <div className="relative bg-white rounded-2xl shadow-sm overflow-hidden">
-              {images[currentImageIndex] && (
+              {carData.images[currentImageIndex] && (
                 <img
-                  src={images[currentImageIndex]}
-                  alt={`${car.brand} ${car.model}`}
+                  src={getImageUrl(carData.images[currentImageIndex], 'main') || ''}
+                  alt={`${carData.model?.brand?.name} ${carData?.model?.name}`}
                   className="w-full h-80 sm:h-96 object-cover"
                 />
               )}
 
-              {images.length > 1 && (
+              {carData.images.length > 1 && (
                 <>
                   <button
                     type="button"
@@ -102,9 +124,9 @@ const CarDetails: React.FC = () => {
               )}
             </div>
 
-            {images.length > 1 && (
+            {carData.images.length > 1 && (
               <div className="mt-4 flex space-x-3 overflow-x-auto pb-2">
-                {images.map((image, index) => (
+                {carData.images.map((image: CarImage, index: number) => (
                   <button
                     key={index}
                     type="button"
@@ -114,7 +136,7 @@ const CarDetails: React.FC = () => {
                     }`}
                   >
                     <img
-                      src={image}
+                      src={getImageUrl(image, 'thumb')}
                       alt=""
                       className="w-full h-full object-cover"
                     />
@@ -127,30 +149,30 @@ const CarDetails: React.FC = () => {
           {/* Summary */}
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-              {car.brand} {car.model}
+              {carData?.model?.brand?.name} {carData?.model?.name}
             </h1>
             <div className="flex items-center text-gray-600 mb-4">
               <MapPin className="h-4 w-4 mr-1" />
-              <span className="text-sm">{car.location}</span>
+              <span className="text-sm">{carData.showroom?.city}</span>
             </div>
 
             <div className="flex items-center justify-between mb-6">
               <div>
                 <div className="text-sm text-gray-500 mb-1">{t('details.price_label', 'Price')}</div>
                 <div className="text-3xl font-extrabold text-blue-700">
-                  {formatPriceLakhs(car.price)}
+                  {formatPriceLakhs(carData.price)}
                 </div>
               </div>
               <span
                 className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  car.status === 'available'
+                  carData.status === Status.Available 
                     ? 'bg-green-100 text-green-800 border border-green-200'
-                    : car.status === 'sold'
+                    : carData.status === Status.Sold
                     ? 'bg-red-100 text-red-800 border border-red-200'
                     : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
                 }`}
               >
-                {t(`status.${car.status}`)}
+                {t(`status.${carData.status}`)}
               </span>
             </div>
 
@@ -159,28 +181,28 @@ const CarDetails: React.FC = () => {
                 <Calendar className="h-4 w-4 mr-2 text-gray-400" />
                 <div>
                   <div className="text-xs text-gray-500">{t('details.year', 'Year')}</div>
-                  <div className="font-medium">{car.year}</div>
+                  <div className="font-medium">{carData.modelYear}</div>
                 </div>
               </div>
               <div className="flex items-center">
                 <Gauge className="h-4 w-4 mr-2 text-gray-400" />
                 <div>
                   <div className="text-xs text-gray-500">{t('details.mileage', 'Mileage')}</div>
-                  <div className="font-medium">{car.mileage.toLocaleString()} km</div>
+                  <div className="font-medium">{carData.mileage.toLocaleString()} km</div>
                 </div>
               </div>
               <div className="flex items-center">
                 <Fuel className="h-4 w-4 mr-2 text-gray-400" />
                 <div>
                   <div className="text-xs text-gray-500">{t('details.fuel_type', 'Fuel Type')}</div>
-                  <div className="font-medium">{car.fuelType}</div>
+                  <div className="font-medium">{carData.fuel}</div>
                 </div>
               </div>
               <div className="flex items-center">
                 <Settings className="h-4 w-4 mr-2 text-gray-400" />
                 <div>
                   <div className="text-xs text-gray-500">{t('details.transmission', 'Transmission')}</div>
-                  <div className="font-medium">{car.transmission}</div>
+                  <div className="font-medium">{carData.transmission}</div>
                 </div>
               </div>
             </div>
@@ -206,7 +228,7 @@ const CarDetails: React.FC = () => {
               {t('details.overview', 'Car Overview')}
             </h2>
             <p className="text-gray-700 leading-relaxed">
-              {car.description}
+              {'description not available'}
             </p>
           </div>
 
@@ -215,32 +237,29 @@ const CarDetails: React.FC = () => {
               {t('details.key_details', 'Key Details')}
             </h2>
             <dl className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-gray-500">{t('details.body_type', 'Body Type')}</dt>
-                <dd className="text-gray-900 font-medium">{car.bodyType}</dd>
-              </div>
-              {car.color && (
+              {carData.color && (
                 <div className="flex justify-between">
                   <dt className="text-gray-500">{t('details.color', 'Color')}</dt>
-                  <dd className="text-gray-900 font-medium">{car.color}</dd>
+                  <dd className="text-gray-900 font-medium">{carData?.color.name}</dd>
                 </div>
               )}
               <div className="flex justify-between">
                 <dt className="text-gray-500">{t('details.location', 'Location')}</dt>
-                <dd className="text-gray-900 font-medium">{car.location}</dd>
+                <dd className="text-gray-900 font-medium">{carData.showroom?.city}</dd>
               </div>
             </dl>
           </div>
         </div>
 
         {/* Features */}
+        {/*
         {car.features && car.features.length > 0 && (
           <div className="mt-10 bg-white rounded-2xl shadow-sm p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               {t('details.features', 'Features')}
             </h2>
             <div className="flex flex-wrap gap-2">
-              {car.features.map((feature) => (
+              {car.features.map((feature: string) => (
                 <span
                   key={feature}
                   className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-xs font-medium"
@@ -251,6 +270,7 @@ const CarDetails: React.FC = () => {
             </div>
           </div>
         )}
+*/}
       </div>
     </div>
   );
