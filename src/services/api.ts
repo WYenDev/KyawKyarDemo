@@ -161,7 +161,6 @@ export interface Car {
   modelId: string;
   model?: Model;
   modelYear: number;
-  vin: string;
   price: number;
   mileage: number;
   fuel: Fuel;
@@ -185,7 +184,6 @@ export interface CarListItem {
   modelId: string;
   model?: Model;
   modelYear: number;
-  vin: string;
   price: number;
   mileage: number;
   fuel: Fuel;
@@ -208,7 +206,6 @@ export interface CarListItem {
 export interface CarCreate {
   modelId: string;
   modelYear: number;
-  vin: string;
   price: number;
   mileage: number;
   fuel: Fuel;
@@ -222,7 +219,6 @@ export interface CarCreate {
 export interface CarUpdate {
   id?: string;
   modelYear?: number;
-  vin?: string;
   price?: number;
   mileage?: number;
   fuel?: Fuel;
@@ -240,6 +236,58 @@ export interface BrandCreate {
 export interface ModelCreate {
   name: string;
   brandId: string;
+}
+
+export interface CarBatchItem {
+  rowIndex: number;
+  modelId?: string;
+  modelYear?: number;
+  price?: number;
+  mileage?: number;
+  fuel?: Fuel;
+  transmission?: Transmission;
+  status?: Status;
+  colorId?: string;
+  /** @nullable */
+  showroomId?: string | null;
+}
+
+export interface CarsCreateBatch {
+  /**
+   * @minItems 1
+   * @maxItems 50
+   */
+  cars: CarBatchItem[];
+}
+
+/**
+ * @nullable
+ */
+export type CarBatchResultItemErrorMeta = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type CarBatchResultItemError = {
+  message?: string;
+  /** @nullable */
+  code?: string | null;
+  /** @nullable */
+  meta?: CarBatchResultItemErrorMeta;
+} | null;
+
+export interface CarBatchResultItem {
+  rowIndex: number;
+  success: boolean;
+  /** @nullable */
+  car?: Car;
+  /** @nullable */
+  error?: CarBatchResultItemError;
+}
+
+export interface CarsCreateBatchResponse {
+  createdCount: number;
+  results: CarBatchResultItem[];
 }
 
 export type GetApiBrandsParams = {
@@ -361,6 +409,13 @@ export type PostApiCarsDeleteBatch200 = {
   baseKeys?: string[];
 };
 
+export type PostApiCarsCreateBatch201ResultsItem = { [key: string]: unknown };
+
+export type PostApiCarsCreateBatch201 = {
+  createdCount?: number;
+  results?: PostApiCarsCreateBatch201ResultsItem[];
+};
+
 export type GetApiModelsParams = {
 page?: number;
 limit?: number;
@@ -368,7 +423,7 @@ brandId?: string;
 };
 
 export type GetApiModels200 = {
-  brands?: Model[];
+  models?: Model[];
   total?: number;
   counts?: number;
   page?: number;
@@ -1746,6 +1801,71 @@ export const usePostApiCarsDeleteBatch = <TError = unknown,
       > => {
 
       const mutationOptions = getPostApiCarsDeleteBatchMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    
+/**
+ * @summary Create multiple cars in bulk (up to 50)
+ */
+export const postApiCarsCreateBatch = (
+    carsCreateBatch: CarsCreateBatch,
+ options?: SecondParameter<typeof mutator>,signal?: AbortSignal
+) => {
+      
+      
+      return mutator<PostApiCarsCreateBatch201>(
+      {url: `/api/cars/create-batch`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: carsCreateBatch, signal
+    },
+      options);
+    }
+  
+
+
+export const getPostApiCarsCreateBatchMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiCarsCreateBatch>>, TError,{data: CarsCreateBatch}, TContext>, request?: SecondParameter<typeof mutator>}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiCarsCreateBatch>>, TError,{data: CarsCreateBatch}, TContext> => {
+
+const mutationKey = ['postApiCarsCreateBatch'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiCarsCreateBatch>>, {data: CarsCreateBatch}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiCarsCreateBatch(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiCarsCreateBatchMutationResult = NonNullable<Awaited<ReturnType<typeof postApiCarsCreateBatch>>>
+    export type PostApiCarsCreateBatchMutationBody = CarsCreateBatch
+    export type PostApiCarsCreateBatchMutationError = unknown
+
+    /**
+ * @summary Create multiple cars in bulk (up to 50)
+ */
+export const usePostApiCarsCreateBatch = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiCarsCreateBatch>>, TError,{data: CarsCreateBatch}, TContext>, request?: SecondParameter<typeof mutator>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiCarsCreateBatch>>,
+        TError,
+        {data: CarsCreateBatch},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiCarsCreateBatchMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }
