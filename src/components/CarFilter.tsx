@@ -186,7 +186,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ filters, onFiltersChange, isOpen,
                 <select
                   value={filters.model}
                   onChange={(e) => updateFilters('model', e.target.value)}
-                  className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm shadow-sm bg-white"
+                  className={`w-full border border-slate-200 rounded-md px-3 py-2 text-sm shadow-sm ${!filters.brand ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-white text-slate-900'}`}
                   disabled={!filters.brand}
                 >
                   <option value="">All</option>
