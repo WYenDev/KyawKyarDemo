@@ -134,16 +134,6 @@ export interface CarImage {
   mimeType: string;
   /** @nullable */
   altText?: string | null;
-  /**
-   * Public URL for the main image size
-   * @nullable
-   */
-  urlMain?: string | null;
-  /**
-   * Public URL for the thumbnail image
-   * @nullable
-   */
-  urlThumb?: string | null;
   createdAt: string;
   updatedAt: string;
 }
