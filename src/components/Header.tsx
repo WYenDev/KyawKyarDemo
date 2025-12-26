@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Car, Phone, Menu, X, Globe, User, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import logo from '../assets/logo-with-text.png';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -77,18 +78,8 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-200 group-hover:scale-105 transition-transform duration-200">
-              <Car className="h-6 w-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 tracking-tight group-hover:text-indigo-700 transition-colors">
-                KyawKyar
-              </h1>
-              <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                {t('tagline', "Myanmar's #1 Used Car Dealer")}
-              </p>
-            </div>
+          <Link to="/" className="flex items-center group">
+            <img src={logo} alt="ကျော်ကြား car showroom" className="h-16 md:h-20 w-auto object-contain" />
           </Link>
 
           {/* Desktop Navigation - Centered Pill */}
