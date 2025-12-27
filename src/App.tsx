@@ -1,30 +1,63 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import BuyCars from './pages/BuyCars';
-import SellCars from './pages/SellCars';
-import About from './pages/About';
-import Reviews from './pages/Reviews';
-import Contact from './pages/Contact';
-import CarDetails from './pages/CarDetails';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+// Public layout components
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+
+// Public pages
+import Home from "./pages/Home";
+import BuyCars from "./pages/BuyCars";
+import SellCars from "./pages/SellCars";
+import About from "./pages/About";
+import Reviews from "./pages/Reviews";
+import Contact from "./pages/Contact";
+import CarDetails from "./pages/CarDetails";
+
+// Admin pages
+import AdminLayout from "./pages/admin/AdminLayout";
+import Dashboard from "./pages/admin/Dashboard";
+import Cars from "./pages/admin/Cars";
+import Brands from "./pages/admin/Brands";
+import Models from "./pages/admin/Model";
+import CarImages from "./pages/admin/CarImages";
 
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-white">
-        <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/buyCars" element={<BuyCars />} />
-          <Route path="/cars/:id" element={<CarDetails />} />
-          <Route path="/sellCars" element={<SellCars />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/reviews" element={<Reviews />} />
-          <Route path="/contact" element={<Contact />} />
-        </Routes>
-        <Footer />
-      </div>
+      <Routes>
+        {/* ================= ADMIN ROUTES ================= */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="cars" element={<Cars />} />
+          <Route path="brands" element={<Brands />} />
+          <Route path="models" element={<Models />} />
+          <Route path="car-images" element={<CarImages />} />
+        </Route>
+
+        {/* ================= PUBLIC ROUTES ================= */}
+        <Route
+          path="*"
+          element={
+            <div className="min-h-screen bg-white flex flex-col">
+              <Header />
+
+              <main className="flex-1">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/buyCars" element={<BuyCars />} />
+                  <Route path="/cars/:id" element={<CarDetails />} />
+                  <Route path="/sellCars" element={<SellCars />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/reviews" element={<Reviews />} />
+                  <Route path="/contact" element={<Contact />} />
+                </Routes>
+              </main>
+
+              <Footer />
+            </div>
+          }
+        />
+      </Routes>
     </Router>
   );
 }
